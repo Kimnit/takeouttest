@@ -10,6 +10,22 @@ spring:
       url: jdbc:mysql://localhost:3306/reggie?serverTimezone=Asia/Shanghai&useUnicode=true&characterEncoding=utf-8&zeroDateTimeBehavior=convertToNull&useSSL=false&allowPublicKeyRetrieval=true
       username: root
       password: root
+  # 邮箱配置
+  mail:
+    host: smtp.qq.com  # 发送邮件的服务器地址
+    username: 1795233634@qq.com # 登录qq邮箱的账号
+    password: rgpzgpblxtqbfcgf  # 开启 IMAP/SMTP服务 获得的授权码,而不是qq邮箱的登录密码
+    default-encoding: UTF-8
+
+    redis:
+      host: localhost # 本地IP 或是 虚拟机IP
+      port: 6379
+      #    password: root
+      database: 0  # 默认使用 0号db
+      cache:
+        redis:
+          time-to-live: 1800000  # 设置缓存数据的过期时间，30分钟
+
 mybatis-plus:
   configuration:
     #在映射实体或者属性时，将数据库中表名和字段名中的下划线去掉，按照驼峰命名法映射
