@@ -3,7 +3,6 @@ package com.kimnit.reggie.service;
 import com.baomidou.mybatisplus.extension.service.IService;
 import com.kimnit.reggie.dto.DishDto;
 import com.kimnit.reggie.entity.Dish;
-import com.kimnit.reggie.entity.SetmealDish;
 
 import java.util.List;
 

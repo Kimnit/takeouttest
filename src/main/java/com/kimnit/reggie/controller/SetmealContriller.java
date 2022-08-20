@@ -3,12 +3,10 @@ package com.kimnit.reggie.controller;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.kimnit.reggie.common.R;
-import com.kimnit.reggie.dto.DishDto;
 import com.kimnit.reggie.dto.SetmealDto;
 import com.kimnit.reggie.entity.Category;
-import com.kimnit.reggie.entity.Dish;
-import com.kimnit.reggie.entity.Employee;
 import com.kimnit.reggie.entity.Setmeal;
+import com.kimnit.reggie.entity.SetmealDish;
 import com.kimnit.reggie.service.CategoryService;
 import com.kimnit.reggie.service.SetMealService;
 import com.kimnit.reggie.service.SetmealDishService;
@@ -17,7 +15,6 @@ import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
-import javax.servlet.http.HttpServletRequest;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -108,7 +105,7 @@ public class SetmealContriller {
     }
 
     /**
-     * 修改套餐
+     * 修改套餐信息
      * @param setmealDto
      * @return
      */
@@ -136,7 +133,7 @@ public class SetmealContriller {
     }
 
     /**
-     * 根据ID修改套餐信息
+     * 根据ID修改套餐销售状态
      * @param ,ids
      * @return
      */
@@ -156,5 +153,50 @@ public class SetmealContriller {
         }
 
         return R.error("套餐状态不能修改,请联系管理或客服！");
+    }
+
+    /**
+     * 根据条件查询对应的菜品数据
+     * @param setmeal
+     * @return
+     */
+    @GetMapping("/list")
+    public R<List<SetmealDto>> listR(Setmeal setmeal){
+
+        //构造查询条件
+        LambdaQueryWrapper<Setmeal> queryWrapper = new LambdaQueryWrapper<> ();
+        queryWrapper.eq (setmeal.getCategoryId () != null,Setmeal::getCategoryId,setmeal.getCategoryId ());
+        //查询起售套餐
+        queryWrapper.eq (setmeal.getStatus () != null,Setmeal::getStatus,setmeal.getStatus ());
+
+        queryWrapper.orderByDesc (Setmeal::getUpdateTime);
+
+        List<Setmeal> list = setMealService.list (queryWrapper);
+
+        List<SetmealDto> setmealDtos = list.stream ().map ((item) -> {
+            SetmealDto setmealDto = new SetmealDto ();
+            //对象拷贝
+            BeanUtils.copyProperties (item,setmealDto);
+
+            Long categoryId = item.getCategoryId ();
+            Long setmealId = item.getId ( );//套餐ID
+            //根据分类ID查询对象
+            Category category = categoryService.getById (categoryId);
+            if(category != null){
+                //分类名称
+                String categoryName = category.getName ();
+                setmealDto.setCategoryName (categoryName);
+            }
+
+            LambdaQueryWrapper<SetmealDish> lambdaQueryWrapper = new LambdaQueryWrapper<> ();
+            lambdaQueryWrapper.eq (SetmealDish::getSetmealId,setmealId);
+
+            List<SetmealDish> setmealDishes = setmealDishService.list (lambdaQueryWrapper);
+            setmealDto.setSetmealDishes (setmealDishes);
+
+            return  setmealDto;
+        }).collect(Collectors.toList());
+
+        return R.success (setmealDtos);
     }
 }

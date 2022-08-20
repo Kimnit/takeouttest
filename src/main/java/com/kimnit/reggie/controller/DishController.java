@@ -2,13 +2,9 @@ package com.kimnit.reggie.controller;
 
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
-import com.kimnit.reggie.common.CustomException;
 import com.kimnit.reggie.common.R;
 import com.kimnit.reggie.dto.DishDto;
-import com.kimnit.reggie.entity.Category;
-import com.kimnit.reggie.entity.Dish;
-import com.kimnit.reggie.entity.Setmeal;
-import com.kimnit.reggie.entity.SetmealDish;
+import com.kimnit.reggie.entity.*;
 import com.kimnit.reggie.service.CategoryService;
 import com.kimnit.reggie.service.DishFlavorService;
 import com.kimnit.reggie.service.DishService;
@@ -137,19 +133,43 @@ public class DishController {
      * @return
      */
     @GetMapping("/list")
-    public R<List<Dish>> listR(Dish dish){
+    public R<List<DishDto>> listR(Dish dish){
 
         //构造查询条件
         LambdaQueryWrapper<Dish> queryWrapper = new LambdaQueryWrapper<> ();
         queryWrapper.eq (dish.getCategoryId () != null,Dish::getCategoryId,dish.getCategoryId ());
         //查询起售菜品
-        queryWrapper.eq (Dish::getStatus,1);
+        queryWrapper.eq (dish.getStatus () != null,Dish::getStatus,dish.getStatus ());
 
         queryWrapper.orderByAsc (Dish::getSort).orderByDesc (Dish::getUpdateTime);
 
         List<Dish> list = dishService.list (queryWrapper);
 
-        return R.success (list);
+        List<DishDto> dtos = list.stream ().map ((item) -> {
+            DishDto dishDto = new DishDto ();
+            BeanUtils.copyProperties (item,dishDto);
+
+            Long categoryId = item.getCategoryId ( );//菜品分类ID
+            Long dishid = item.getId ( );//菜品ID
+
+            //根据id查询分类对象
+            Category category = categoryService.getById (categoryId);
+
+            if (category != null){
+                String categoryname = category.getName ();
+                dishDto.setCategoryName (categoryname);
+            }
+
+            LambdaQueryWrapper<DishFlavor> lambdaQueryWrapper = new LambdaQueryWrapper<> ();
+            lambdaQueryWrapper.eq (DishFlavor::getDishId,dishid);
+            //SQL:select * from dish_flavor where dish_id = ?
+            List<DishFlavor> dishFlavors = dishFlavorService.list (lambdaQueryWrapper);
+            dishDto.setFlavors (dishFlavors);
+
+            return dishDto;
+        }).collect (Collectors.toList ());
+
+        return R.success (dtos);
     }
 
     /**
