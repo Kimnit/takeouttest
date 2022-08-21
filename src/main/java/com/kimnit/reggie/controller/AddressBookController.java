@@ -11,6 +11,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
+import java.time.LocalDateTime;
 import java.util.List;
 
 /**
@@ -97,4 +98,30 @@ public class AddressBookController {
         return R.success (addressBookService.list (lambdaQueryWrapper));
     }
 
+    /**
+     * 根据ID修改地址信息
+     * @param addressBook
+     * @return
+     */
+    @PutMapping
+    public R<String> update(@RequestBody AddressBook addressBook){
+
+        addressBook.setUpdateTime (LocalDateTime.now ());
+        addressBookService.updateById (addressBook);
+
+        return R.success ("修改地址成功");
+    }
+
+    /**
+     * 根据地址id删除改地址信息
+     * @param ids
+     * @return
+     */
+    @DeleteMapping
+    public R<String> delete(@RequestParam Long ids){
+
+        addressBookService.removeById (ids);
+
+        return null;
+    }
 }

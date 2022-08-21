@@ -3,7 +3,6 @@ package com.kimnit.reggie.service.impl;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.kimnit.reggie.common.CustomException;
-import com.kimnit.reggie.common.R;
 import com.kimnit.reggie.dto.DishDto;
 import com.kimnit.reggie.entity.Dish;
 import com.kimnit.reggie.entity.DishFlavor;
@@ -74,6 +73,20 @@ public class DishServiceImpl extends ServiceImpl<DishMapper, Dish> implements Di
         dishDto.setFlavors (flavors);
 
         return dishDto;
+    }
+
+    //根据ID查询图片
+    @Override
+    public String getImageById(Long id) {
+        LambdaQueryWrapper<Dish> queryWrapper = new LambdaQueryWrapper<> ();
+        queryWrapper.eq (Dish::getId,id);
+        List<Dish> list = dishService.list (queryWrapper);
+        String image = "";
+        for (Dish dish : list){
+            image = dish.getImage ( );
+        }
+
+        return image;
     }
 
     //修改菜品，同时更新菜品对应的口味数据，操作表：Dish，dish_flavor

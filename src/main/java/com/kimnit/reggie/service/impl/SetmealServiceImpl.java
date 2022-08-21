@@ -26,6 +26,9 @@ import java.util.stream.Collectors;
 public class SetmealServiceImpl extends ServiceImpl<SetMealMapper, Setmeal> implements SetMealService {
 
     @Autowired
+    private SetMealService setMealService;
+
+    @Autowired
     private SetmealDishService setmealDishService;
 
     //    新增套餐，同时保存套餐和菜品的关联关系
@@ -113,5 +116,19 @@ public class SetmealServiceImpl extends ServiceImpl<SetMealMapper, Setmeal> impl
         }).collect (Collectors.toList ());
 
         setmealDishService.saveBatch (flavors);
+    }
+
+    //根据ID查询图片
+    @Override
+    public String getImageById(Long id) {
+        LambdaQueryWrapper<Setmeal> queryWrapper = new LambdaQueryWrapper<> ();
+        queryWrapper.eq (Setmeal::getId,id);
+        List<Setmeal> list = setMealService.list (queryWrapper);
+        String image = "";
+        for (Setmeal setmeal : list){
+            image = setmeal.getImage ( );
+        }
+
+        return image;
     }
 }

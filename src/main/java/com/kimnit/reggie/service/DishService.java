@@ -13,6 +13,9 @@ public interface DishService extends IService<Dish> {
     //根据ID查询菜品信息和对应的口味信息
     public DishDto getByIdWithFlavor(Long id);
 
+    //根据ID查询图片
+    public String getImageById(Long id);
+
     //修改菜品，同时更新菜品对应的口味数据，操作表：Dish，dish_flavor
     public void updateWithFlavor(DishDto dishDto);
 

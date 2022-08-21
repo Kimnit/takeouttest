@@ -15,8 +15,11 @@ public interface SetMealService extends IService<Setmeal> {
     public void removeWithDish(List<Long> ids);
 
     //根据ID查询t套餐信息
-    SetmealDto getByIdWithDish(Long ids);
+    public SetmealDto getByIdWithDish(Long ids);
 
     //修改套餐，同时更新套餐对应的菜品，操作表：setmeal，setmeal_dish
     public void updateWithdish(SetmealDto setmealDto);
+
+    //根据ID查询图片
+    public String getImageById(Long setmealId);
 }
