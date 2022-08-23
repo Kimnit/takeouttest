@@ -131,4 +131,20 @@ public class SetmealServiceImpl extends ServiceImpl<SetMealMapper, Setmeal> impl
 
         return image;
     }
+
+    @Override
+    public String getCategoryId(Long id) {
+        Setmeal setmeal = new SetmealDto ();
+        LambdaQueryWrapper<Setmeal> queryWrapper = new LambdaQueryWrapper<> ();
+        queryWrapper.eq (Setmeal::getCategoryId,id);
+
+        List<Setmeal> list = setMealService.list (queryWrapper);
+        for (Setmeal setmeal1 : list) {
+            setmeal = setmeal1;
+        }
+
+        String key = "dish_" + setmeal.getCategoryId () + "_1";
+
+        return key;
+    }
 }

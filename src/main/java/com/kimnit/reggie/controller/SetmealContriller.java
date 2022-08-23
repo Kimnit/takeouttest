@@ -3,6 +3,7 @@ package com.kimnit.reggie.controller;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.kimnit.reggie.common.R;
+import com.kimnit.reggie.dto.DishDto;
 import com.kimnit.reggie.dto.SetmealDto;
 import com.kimnit.reggie.entity.Category;
 import com.kimnit.reggie.entity.Setmeal;
@@ -13,9 +14,11 @@ import com.kimnit.reggie.service.SetmealDishService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
 @RestController
@@ -32,6 +35,9 @@ public class SetmealContriller {
     @Autowired
     private SetmealDishService setmealDishService;
 
+    @Autowired
+    private RedisTemplate redisTemplate;
+
     /**
      * 新增套餐
      * @param setmealDto
@@ -42,6 +48,10 @@ public class SetmealContriller {
         log.info ("套餐信息：{}",setmealDto);
 
         setMealService.saveWithDish (setmealDto);
+
+        //清理某个分类下的套餐缓存
+        String key = "setmeal_" + setmealDto.getCategoryId () + "_" + setmealDto.getStatus ();
+        redisTemplate.delete (key);
 
         return R.success ("新增套餐成功");
     }
@@ -115,6 +125,10 @@ public class SetmealContriller {
 
         setMealService.updateWithdish (setmealDto);
 
+        //清理某个分类下的套餐缓存
+        String key = "setmeal_" + setmealDto.getCategoryId () + "_" + setmealDto.getStatus ();
+        redisTemplate.delete (key);
+
         return R.success ("修改套餐成功");
     }
 
@@ -128,6 +142,12 @@ public class SetmealContriller {
         log.info ("ids:{}",ids);
 
         setMealService.removeWithDish (ids);
+
+        //清理某个分类下的套餐缓存
+        for (Long id : ids) {
+            String key = setMealService.getCategoryId(id);
+            redisTemplate.delete (key);
+        }
 
         return R.success ("删除套餐成功");
     }
@@ -148,6 +168,10 @@ public class SetmealContriller {
             for (Setmeal setmeal : list) {
                 setmeal.setStatus(status);
                 setMealService.updateById(setmeal);
+
+                //清理某个分类下的套餐缓存
+                String key = "setmeal_" + setmeal.getCategoryId () + "_" + setmeal.getStatus ();
+                redisTemplate.delete (key);
             }
             return R.success("套餐状态修改成功！");
         }
@@ -162,6 +186,17 @@ public class SetmealContriller {
      */
     @GetMapping("/list")
     public R<List<SetmealDto>> listR(Setmeal setmeal){
+        List<SetmealDto> setmealDtos = null;
+
+        //动态构造Key
+        String key = "setmeal_" + setmeal.getCategoryId () + "_" + setmeal.getStatus ();//setmeal_115616_1
+
+        //先从redis中获取缓存
+        setmealDtos = (List<SetmealDto>) redisTemplate.opsForValue ().get (key);
+        if(setmealDtos != null){
+            //如果存在，直接返回，无需查询数据库
+            return R.success (setmealDtos);
+        }
 
         //构造查询条件
         LambdaQueryWrapper<Setmeal> queryWrapper = new LambdaQueryWrapper<> ();
@@ -173,7 +208,7 @@ public class SetmealContriller {
 
         List<Setmeal> list = setMealService.list (queryWrapper);
 
-        List<SetmealDto> setmealDtos = list.stream ().map ((item) -> {
+        setmealDtos = list.stream ().map ((item) -> {
             SetmealDto setmealDto = new SetmealDto ();
             //对象拷贝
             BeanUtils.copyProperties (item,setmealDto);
@@ -196,6 +231,9 @@ public class SetmealContriller {
 
             return  setmealDto;
         }).collect(Collectors.toList());
+
+        //不存在,缓存到redis
+        redisTemplate.opsForValue ().set (key,setmealDtos,60, TimeUnit.MINUTES);
 
         return R.success (setmealDtos);
     }
