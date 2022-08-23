@@ -174,20 +174,4 @@ public class DishServiceImpl extends ServiceImpl<DishMapper, Dish> implements Di
         //删除关系表中的数据--dish
         dishService.removeByIds (ids);
     }
-
-
-    public String getCategoryId(Long id) {
-        Dish dish = new Dish ();
-        LambdaQueryWrapper<Dish> queryWrapper = new LambdaQueryWrapper<> ();
-        queryWrapper.eq (Dish::getId,id);
-
-        List<Dish> list = dishService.list (queryWrapper);
-        for (Dish dish1 : list) {
-            dish = dish1;
-        }
-
-        String key = "dish_" + dish.getCategoryId () + "_1";
-
-        return key;
-    }
 }

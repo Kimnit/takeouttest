@@ -23,6 +23,4 @@ public interface SetMealService extends IService<Setmeal> {
     //根据ID查询图片
     public String getImageById(Long setmealId);
 
-    //获取CategoryId
-    String getCategoryId(Long id);
 }

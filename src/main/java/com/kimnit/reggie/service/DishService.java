@@ -24,7 +24,4 @@ public interface DishService extends IService<Dish> {
 
     //套餐表中并没有本菜品且改菜品停售可删除
     public void removeWithDish(List<Long> ids);
-
-    //获取CategoryId
-    String getCategoryId(Long id);
 }
