@@ -1,6 +1,8 @@
 package com.kimnit.reggie.controller;
 
 import com.kimnit.reggie.common.R;
+import io.swagger.annotations.Api;
+import io.swagger.annotations.ApiOperation;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -23,6 +25,7 @@ import java.util.UUID;
 @RestController
 @Slf4j
 @RequestMapping("/common")
+@Api(tags = "文件上传下载")
 public class CommonController {
 
     @Value ("${reggie.path}")
@@ -34,6 +37,7 @@ public class CommonController {
      * @return
      */
     @PostMapping("/upload")
+    @ApiOperation(value = "文件上传")
     public R<String> upload(MultipartFile file){
         //file是一个临时文件，需要转存，不然会删除
         log.info (file.toString ());
@@ -68,6 +72,7 @@ public class CommonController {
      * @param response
      */
     @GetMapping("/download")
+    @ApiOperation(value = "文件下载")
     public void doenload(String name, HttpServletResponse response){
         try {
             //输入流，读取文件内容

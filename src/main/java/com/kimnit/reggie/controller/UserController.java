@@ -5,6 +5,8 @@ import com.kimnit.reggie.common.R;
 import com.kimnit.reggie.entity.User;
 import com.kimnit.reggie.service.UserService;
 import com.kimnit.reggie.utils.ValidateCodeUtils;
+import io.swagger.annotations.Api;
+import io.swagger.annotations.ApiOperation;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -24,6 +26,7 @@ import java.util.concurrent.TimeUnit;
 @RestController
 @RequestMapping("/user")
 @Slf4j
+@Api(tags = "用户登录相关接口")
 public class UserController {
 
     @Value("${spring.mail.username}")
@@ -40,6 +43,7 @@ public class UserController {
 
     // 发送邮箱验证码
     @PostMapping("/sendMsg") // sendMsg
+    @ApiOperation(value = "发送邮箱验证码接口")
     public R<String> sendMsg(@RequestBody User user, HttpSession session){
         //  获取邮箱账号
         String phone = user.getPhone();
@@ -68,6 +72,7 @@ public class UserController {
 
     // 消费者端 用户登录
     @PostMapping("/login")
+    @ApiOperation(value = "用户登录接口")
     public R<User> login(@RequestBody Map map, HttpSession session){
 
         log.info("userMap:{}"+map.toString());
@@ -112,6 +117,7 @@ public class UserController {
 
     // loginout
     @PostMapping("/loginout")
+    @ApiOperation(value = "用户退出登录接口")
     public R<String> logout(HttpServletRequest request){
         request.getSession().removeAttribute("userPhone");
         return R.success("安全退出成功！");

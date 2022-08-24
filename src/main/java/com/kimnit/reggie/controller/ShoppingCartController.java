@@ -5,6 +5,8 @@ import com.kimnit.reggie.common.BaseConext;
 import com.kimnit.reggie.common.R;
 import com.kimnit.reggie.entity.ShoppingCart;
 import com.kimnit.reggie.service.ShoppingCartService;
+import io.swagger.annotations.Api;
+import io.swagger.annotations.ApiOperation;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
@@ -15,6 +17,7 @@ import java.util.List;
 @RestController
 @RequestMapping("shoppingCart")
 @Slf4j
+@Api(tags = "购物车相关接口")
 public class ShoppingCartController {
 
     @Autowired
@@ -26,6 +29,7 @@ public class ShoppingCartController {
      * @return
      */
     @PostMapping("/add")
+    @ApiOperation(value = "添加至购物车接口")
     public R<ShoppingCart> add(@RequestBody ShoppingCart shoppingCart){
         log.info ("购物车数据:{}",shoppingCart);
 
@@ -71,6 +75,7 @@ public class ShoppingCartController {
      * @return
      */
     @GetMapping("/list")
+    @ApiOperation(value = "查看购物车接口")
     public R<List<ShoppingCart>> listR(){
         LambdaQueryWrapper<ShoppingCart> queryWrapper = new LambdaQueryWrapper<> ();
         queryWrapper.eq (ShoppingCart::getUserId,BaseConext.getThreadLocalId ());
@@ -86,6 +91,7 @@ public class ShoppingCartController {
      * @return
      */
     @DeleteMapping("/clean")
+    @ApiOperation(value = "清空购物车接口")
     public R<String> delete(){
         LambdaQueryWrapper<ShoppingCart> queryWrapper = new LambdaQueryWrapper<> ();
         queryWrapper.eq (ShoppingCart::getUserId,BaseConext.getThreadLocalId ());

@@ -9,6 +9,10 @@ import com.kimnit.reggie.service.CategoryService;
 import com.kimnit.reggie.service.DishFlavorService;
 import com.kimnit.reggie.service.DishService;
 import com.kimnit.reggie.service.SetmealDishService;
+import io.swagger.annotations.Api;
+import io.swagger.annotations.ApiImplicitParam;
+import io.swagger.annotations.ApiImplicitParams;
+import io.swagger.annotations.ApiOperation;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -28,6 +32,7 @@ import java.util.stream.Collectors;
 @RestController
 @RequestMapping("/dish")
 @Slf4j
+@Api(tags = "菜品相关接口")
 public class DishController {
 
     @Autowired
@@ -39,11 +44,6 @@ public class DishController {
     @Autowired
     private CategoryService categoryService;
 
-    @Autowired
-    private SetmealDishService setmealDishService;
-
-    @Autowired
-    private RedisTemplate redisTemplate;
     /**
      * 新增菜品
      * @param dishDto
@@ -51,6 +51,7 @@ public class DishController {
      */
     @PostMapping
     @CacheEvict(value = "dishCache",allEntries = true)
+    @ApiOperation(value = "新增菜品接口")
     public R<String> save(@RequestBody DishDto dishDto){
         log.info (dishDto.toString ());
 
@@ -60,13 +61,19 @@ public class DishController {
     }
 
     /**
-     * 菜品信息分类查询
+     * 菜品信息分页查询
      * @param page
      * @param pageSize
      * @param name
      * @return
      */
     @GetMapping("page")
+    @ApiOperation (value = "菜品分页查询接口")
+    @ApiImplicitParams({
+            @ApiImplicitParam(name = "page",value = "页码",required = true),
+            @ApiImplicitParam(name = "pageSize",value = "每页记录数",required = true),
+            @ApiImplicitParam(name = "name",value = "菜品名称",required = false)
+    })
     public R<Page> page(int page, int pageSize, String name){
 //        构造分页构造器对象
         Page<Dish> pageInfo = new Page<> (page, pageSize);
@@ -114,6 +121,7 @@ public class DishController {
      * @return
      */
     @GetMapping("/{id}")
+    @ApiOperation (value = "菜品口味信息查询接口")
     public  R<DishDto> get(@PathVariable Long id){
 
         DishDto dishDto = dishService.getByIdWithFlavor (id);
@@ -128,6 +136,7 @@ public class DishController {
      */
     @PutMapping
     @CacheEvict(value = "dishCache",allEntries = true)
+    @ApiOperation (value = "修改菜品接口")
     public R<String> update(@RequestBody DishDto dishDto){
         log.info (dishDto.toString ());
 
@@ -143,6 +152,7 @@ public class DishController {
      */
     @GetMapping("/list")
     @Cacheable(value = "dishCache",key = "#dish.categoryId + '_' + #dish.status")
+    @ApiOperation (value = "菜品条件查询接口")
     public R<List<DishDto>> listR(Dish dish){
         //构造查询条件
         LambdaQueryWrapper<Dish> queryWrapper = new LambdaQueryWrapper<> ();
@@ -182,12 +192,13 @@ public class DishController {
     }
 
     /**
-     * 根据ID修改菜品信息
+     * 根据ID修改菜品状态
      * @param ,ids
      * @return
      */
     @PostMapping("/status/{status}")
     @CacheEvict(value = "dishCache",allEntries = true)
+    @ApiOperation (value = "菜品状态修改接口")
     public R<String> update(@PathVariable Integer status,@RequestParam List<Long> ids) {
         dishService.updateWithSetmealdish (status,ids);
 
@@ -201,6 +212,7 @@ public class DishController {
      */
     @DeleteMapping
     @CacheEvict(value = "dishCache",allEntries = true)
+    @ApiOperation (value = "删除菜品接口")
     public R<String> delete(@RequestParam List<Long> ids){
         log.info ("ids:{}",ids);
 

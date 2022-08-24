@@ -7,6 +7,8 @@ import com.kimnit.reggie.common.R;
 import com.kimnit.reggie.entity.AddressBook;
 import com.kimnit.reggie.service.AddressBookService;
 import com.sun.prism.impl.BaseContext;
+import io.swagger.annotations.Api;
+import io.swagger.annotations.ApiOperation;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
@@ -20,15 +22,17 @@ import java.util.List;
 @Slf4j
 @RestController
 @RequestMapping("/addressBook")
+@Api(tags = "地址簿管理接口")
 public class AddressBookController {
 
     @Autowired
     private AddressBookService addressBookService;
 
     /**
-     * 新增
+     * 新增地址
      */
     @PostMapping
+    @ApiOperation(value = "新增地址接口")
     public R<AddressBook> save(@RequestBody AddressBook addressBook){
         addressBook.setUserId (BaseConext.getThreadLocalId ());
         log.info ("addressBook:{}",addressBook);
@@ -40,6 +44,7 @@ public class AddressBookController {
      * 设置默认地址
      */
     @PutMapping("default")
+    @ApiOperation(value = "设置默认地址接口")
     public R<AddressBook> setDelfault(@RequestBody AddressBook addressBook){
         log.info ("addressBook:{}",addressBook);
         LambdaUpdateWrapper<AddressBook> wrapper = new LambdaUpdateWrapper<> ();
@@ -56,6 +61,7 @@ public class AddressBookController {
      * 根据ID查询地址
      */
     @GetMapping("/{id}")
+    @ApiOperation(value = "查询地址接口")
     public R get(@PathVariable Long id){
         AddressBook addressBook = addressBookService.getById (id);
         if (addressBook != null){
@@ -69,6 +75,7 @@ public class AddressBookController {
      * 查询默认地址
      */
     @GetMapping("default")
+    @ApiOperation(value = "查询默认地址接口")
     public R<AddressBook> getDefault(){
         LambdaQueryWrapper<AddressBook> queryWrapper = new LambdaQueryWrapper<> ();
         queryWrapper.eq (AddressBook::getUserId,BaseConext.getThreadLocalId ());
@@ -87,6 +94,7 @@ public class AddressBookController {
      * 查询指定用户的全部地址
      */
     @GetMapping("list")
+    @ApiOperation(value = "查询指定用户的全部地址接口")
     public R<List<AddressBook>> list(AddressBook addressBook){
         addressBook.setUserId (BaseConext.getThreadLocalId ());
         log.info ("addressBook:{}",addressBook);
@@ -104,6 +112,7 @@ public class AddressBookController {
      * @return
      */
     @PutMapping
+    @ApiOperation(value = "地址修改接口")
     public R<String> update(@RequestBody AddressBook addressBook){
 
         addressBook.setUpdateTime (LocalDateTime.now ());
@@ -118,6 +127,7 @@ public class AddressBookController {
      * @return
      */
     @DeleteMapping
+    @ApiOperation(value = "地址删除接口")
     public R<String> delete(@RequestParam Long ids){
 
         addressBookService.removeById (ids);

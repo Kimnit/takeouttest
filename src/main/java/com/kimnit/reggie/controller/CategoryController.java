@@ -4,11 +4,13 @@ import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.kimnit.reggie.common.R;
 import com.kimnit.reggie.entity.Category;
-import com.kimnit.reggie.entity.Employee;
 import com.kimnit.reggie.service.CategoryService;
+import io.swagger.annotations.Api;
+import io.swagger.annotations.ApiImplicitParam;
+import io.swagger.annotations.ApiImplicitParams;
+import io.swagger.annotations.ApiOperation;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.util.StringUtils;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -20,6 +22,7 @@ import java.util.List;
 @RestController
 @RequestMapping("/category")
 @Slf4j
+@Api(tags = "分类管理相关接口")
 public class CategoryController {
 
     @Autowired
@@ -31,6 +34,7 @@ public class CategoryController {
      * @return
      */
     @PostMapping
+    @ApiOperation ("新增分类接口")
     public R<String> save(@RequestBody Category category){
         categoryService.save (category);
         log.info ("category = {}",category);
@@ -44,6 +48,11 @@ public class CategoryController {
      * @return
      */
     @GetMapping("/page")
+    @ApiOperation ("员工信息分页查询接口")
+    @ApiImplicitParams({
+            @ApiImplicitParam(name = "page",value = "页码",required = true),
+            @ApiImplicitParam(name = "pageSize",value = "每页记录数",required = true)
+    })
     public R<Page> page(int page, int pageSize){
         log.info ("page = {},pageSize = {}", page, pageSize);
 
@@ -68,6 +77,7 @@ public class CategoryController {
      * @return
      */
     @DeleteMapping
+    @ApiOperation ("分类删除接口")
     public R<String> delete(Long ids){
         log.info ("删除分类，id为：{}",ids);
 
@@ -83,6 +93,7 @@ public class CategoryController {
      * @return
      */
     @PutMapping
+    @ApiOperation ("分类修改接口")
     public R<String> update(@RequestBody Category category){
         log.info ("修改分类信息为：{}", category);
 
@@ -96,6 +107,7 @@ public class CategoryController {
      * @return
      */
     @GetMapping("/list")
+    @ApiOperation ("分类条件查询接口")
     public R<List<Category>> list(Category category){
         //条件构造器
         LambdaQueryWrapper<Category> queryWrapper = new LambdaQueryWrapper<> ();

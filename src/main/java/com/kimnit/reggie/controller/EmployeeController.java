@@ -5,6 +5,10 @@ import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.kimnit.reggie.common.R;
 import com.kimnit.reggie.entity.Employee;
 import com.kimnit.reggie.service.EmployeeService;
+import io.swagger.annotations.Api;
+import io.swagger.annotations.ApiImplicitParam;
+import io.swagger.annotations.ApiImplicitParams;
+import io.swagger.annotations.ApiOperation;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.util.DigestUtils;
@@ -18,6 +22,7 @@ import java.time.LocalDateTime;
 @Slf4j
 @RestController
 @RequestMapping("/employee")
+@Api(tags = "员工相关接口")
 public class EmployeeController {
 
     @Autowired
@@ -25,6 +30,7 @@ public class EmployeeController {
 
 //    员工登录
     @PostMapping("/login")
+    @ApiOperation(value = "员工登录接口")
     public R<Employee> login(HttpServletRequest request, @RequestBody Employee employee){
         //1.将页面提交的数据进行MD5加密处理
         String password = employee.getPassword ( );
@@ -51,6 +57,7 @@ public class EmployeeController {
     }
 
     @PostMapping("/logout")
+    @ApiOperation(value = "员工退出接口")
     public R<String> logout(HttpServletRequest request){
         //清除session中保存的员工ID
         request.getSession ().removeAttribute ("employee");
@@ -59,6 +66,7 @@ public class EmployeeController {
 
     //新增员工
     @PostMapping
+    @ApiOperation(value = "新增员工接口")
     public R<String> save(HttpServletRequest request, @RequestBody Employee employee){
         log.info ("新增员工，员工信息为：{}",employee.toString ());
 
@@ -86,6 +94,12 @@ public class EmployeeController {
      * @return
      */
     @GetMapping("/page")
+    @ApiOperation(value = "员工信息分页查询接口")
+    @ApiImplicitParams({
+            @ApiImplicitParam(name = "page",value = "页码",required = true),
+            @ApiImplicitParam(name = "pageSize",value = "每页记录数",required = true),
+            @ApiImplicitParam(name = "name",value = "员工名称",required = false)
+    })
     public R<Page> page(int page, int pageSize, String name){
         log.info ("page = {},pageSize = {}, name = {}", page, pageSize, name);
 
@@ -111,6 +125,7 @@ public class EmployeeController {
      * @return
      */
     @PutMapping
+    @ApiOperation(value = "员工信息修改接口")
     public R<String> update(HttpServletRequest request, @RequestBody Employee employee){
 
         log.info(employee.toString ());
@@ -132,6 +147,7 @@ public class EmployeeController {
      * @return
      */
     @GetMapping("/{id}")
+    @ApiOperation(value = "员工信息id查询接口")
     public R<Employee> getbyId(@PathVariable Long id){
         log.info ("根据id查询员工信息");
         Employee employee = employeeService.getById (id);

@@ -10,6 +10,10 @@ import com.kimnit.reggie.entity.OrderDetail;
 import com.kimnit.reggie.entity.Orders;
 import com.kimnit.reggie.entity.ShoppingCart;
 import com.kimnit.reggie.service.*;
+import io.swagger.annotations.Api;
+import io.swagger.annotations.ApiImplicitParam;
+import io.swagger.annotations.ApiImplicitParams;
+import io.swagger.annotations.ApiOperation;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -23,6 +27,7 @@ import java.util.stream.Collectors;
 @RestController
 @Slf4j
 @RequestMapping("/order")
+@Api(tags = "订单相关接口")
 public class OrdersController {
 
     @Autowired
@@ -46,6 +51,7 @@ public class OrdersController {
      * @return
      */
     @PostMapping("/submit")
+    @ApiOperation(value = "用户下单接口")
     public R<String> submit(@RequestBody Orders orders){
         log.info ("订单数据：{}",orders);
         ordersService.submit (orders);
@@ -62,6 +68,14 @@ public class OrdersController {
      * @return
      */
     @GetMapping("/page")
+    @ApiOperation (value = "订单分页查询接口")
+    @ApiImplicitParams({
+            @ApiImplicitParam(name = "page",value = "页码",required = true),
+            @ApiImplicitParam(name = "pageSize",value = "每页记录数",required = true),
+            @ApiImplicitParam(name = "number",value = "订单号",required = false),
+            @ApiImplicitParam(name = "beginTime",value = "查询开始时间",required = false),
+            @ApiImplicitParam(name = "endTime",value = "查询结束时间",required = false)
+    })
     public R<Page> page(int page, int pageSize,Long number,String beginTime,String endTime){
         //构造分页构造器
         Page<Orders> ordersPage = new Page<> (page,pageSize);
@@ -84,6 +98,7 @@ public class OrdersController {
      * @return
      */
     @PutMapping
+    @ApiOperation (value = "订单状态修改接口")
     public R<String> delivery(@RequestBody Orders orders){
         LambdaQueryWrapper<Orders> queryWrapper = new LambdaQueryWrapper<> ();
         queryWrapper.eq (Orders::getId,orders.getId ());
@@ -100,6 +115,7 @@ public class OrdersController {
      * @return
      */
     @GetMapping("/userPage")
+    @ApiOperation (value = "用户查询自己订单接口")
     public R<Page> userPage(int page, int pageSize){
         //构造分页构造器
         Page<Orders> ordersPage = new Page<> (page,pageSize);
@@ -140,6 +156,7 @@ public class OrdersController {
      * @return
      */
     @PostMapping("again")
+    @ApiOperation (value = "已完成订单再来一单接口")
     public R<String> again(@RequestBody Orders orders){
         LambdaQueryWrapper<OrderDetail> queryWrapper = new LambdaQueryWrapper<> ();
         queryWrapper.eq (OrderDetail::getOrderId,orders.getId ());

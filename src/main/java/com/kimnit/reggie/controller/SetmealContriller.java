@@ -11,6 +11,10 @@ import com.kimnit.reggie.entity.SetmealDish;
 import com.kimnit.reggie.service.CategoryService;
 import com.kimnit.reggie.service.SetMealService;
 import com.kimnit.reggie.service.SetmealDishService;
+import io.swagger.annotations.Api;
+import io.swagger.annotations.ApiImplicitParam;
+import io.swagger.annotations.ApiImplicitParams;
+import io.swagger.annotations.ApiOperation;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -26,6 +30,7 @@ import java.util.stream.Collectors;
 @RestController
 @RequestMapping("/setmeal")
 @Slf4j
+@Api(tags = "套餐相关接口")
 public class SetmealContriller {
 
     @Autowired
@@ -37,9 +42,6 @@ public class SetmealContriller {
     @Autowired
     private SetmealDishService setmealDishService;
 
-    @Autowired
-    private RedisTemplate redisTemplate;
-
     /**
      * 新增套餐
      * @param setmealDto
@@ -47,6 +49,7 @@ public class SetmealContriller {
      */
     @PostMapping
     @CacheEvict(value = "setmealCache",allEntries = true)
+    @ApiOperation (value = "新增套餐接口")
     public R<String> save(@RequestBody SetmealDto setmealDto){
         log.info ("套餐信息：{}",setmealDto);
 
@@ -63,6 +66,12 @@ public class SetmealContriller {
      * @return
      */
     @GetMapping("/page")
+    @ApiOperation (value = "套餐分页查询接口")
+    @ApiImplicitParams ({
+            @ApiImplicitParam(name = "page",value = "页码",required = true),
+            @ApiImplicitParam(name = "pageSize",value = "每页记录数",required = true),
+            @ApiImplicitParam(name = "name",value = "套餐名称",required = false)
+    })
     public R<Page> page(int page, int pageSize, String name){
         //分页构造器
         Page<Setmeal> pageInfo = new Page<> ( page,pageSize );
@@ -106,6 +115,7 @@ public class SetmealContriller {
      * @return
      */
     @GetMapping("/{ids}")
+    @ApiOperation (value = "套餐id查询接口")
     public R<SetmealDto> listR(@PathVariable Long ids){
 
         SetmealDto setmealDto = setMealService.getByIdWithDish (ids);
@@ -120,6 +130,7 @@ public class SetmealContriller {
      */
     @PutMapping
     @CacheEvict(value = "setmealCache",allEntries = true)
+    @ApiOperation (value = "套餐修改接口")
     public R<String> update(@RequestBody SetmealDto setmealDto){
         log.info (setmealDto.toString ());
 
@@ -135,6 +146,7 @@ public class SetmealContriller {
      */
     @DeleteMapping
     @CacheEvict(value = "setmealCache",allEntries = true)
+    @ApiOperation (value = "套餐删除接口")
     public R<String> delete(@RequestParam List<Long> ids){
         log.info ("ids:{}",ids);
 
@@ -150,6 +162,7 @@ public class SetmealContriller {
      */
     @PostMapping("/status/{status}")
     @CacheEvict(value = "setmealCache",allEntries = true)
+    @ApiOperation (value = "套餐状态修改接口")
     public R<String> update(@PathVariable Integer status,@RequestParam List<Long> ids){
 
         LambdaQueryWrapper<Setmeal> queryWrapper = new LambdaQueryWrapper<> ();
@@ -174,6 +187,7 @@ public class SetmealContriller {
      */
     @GetMapping("/list")
     @Cacheable(value = "setmealCache",key = "#setmeal.categoryId + '_' + #setmeal.status")
+    @ApiOperation (value = "套餐条件查询接口")
     public R<List<SetmealDto>> listR(Setmeal setmeal){
         //构造查询条件
         LambdaQueryWrapper<Setmeal> queryWrapper = new LambdaQueryWrapper<> ();
